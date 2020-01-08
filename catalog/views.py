@@ -28,8 +28,10 @@ def index(request):
 
 class BookListView(generic.ListView):
     model = Book
+    paginate_by = 2
     context_object_name = 'my_book_list' # own name for the list as a template variable
-    queryset = Book.objects.filter(title__icontains='book')[:5] # get 5 books containing the title book
+    queryset = Book.objects.all()[:5] # get 5 books containing the title book
+    # queryset = Book.objects.filter(title__icontains='book')[:5] # get 5 books containing the title book
     # template_name = 'books/my_arbitrary_template_name_list.html' # specify your own template name/location
 
     # def get_queryset(self):
@@ -44,3 +46,13 @@ class BookListView(generic.ListView):
 
 class BookDetailView(generic.DetailView):
     model = Book
+
+class AuthorsView(generic.ListView):
+    model = Author
+    context_object_name = 'authors_list'
+    queryset = Author.objects.all()
+    template_name = 'catalog/authors.html'
+
+
+class AuthorDetail(generic.DetailView):
+    model = Author
