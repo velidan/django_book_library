@@ -1,4 +1,4 @@
-"""blog URL Configuration
+"""locallibrary URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.0/topics/http/urls/
@@ -11,7 +11,7 @@ Class-based views
     2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
 Including another URLconf
     1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
+    2. Add a URL to urlpatterns:  path('locallibrary/', include('locallibrary.urls'))
 """
 from django.contrib import admin
 from django.urls import path, include
@@ -34,6 +34,11 @@ urlpatterns += [
 #Add URL maps to redirect the base URL to our application
 urlpatterns += [
     path('', RedirectView.as_view(url='catalog/', permanent=True)),
+]
+
+#Add Django site authentication urls (for login, logout, password management)
+urlpatterns += [
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
 
 # static handling

@@ -5,7 +5,7 @@ import sys
 
 
 def main():
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'blog.settings')
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'locallibrary.settings')
     try:
 
         # Override default port for `runserver` command
