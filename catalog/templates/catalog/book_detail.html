@@ -23,5 +23,7 @@
       <p><strong>Imprint:</strong> {{ copy.imprint }}</p>
       <p class="text-muted"><strong>Id:</strong> {{ copy.id }}</p>
     {% endfor %}
+
+    <a href="{% url 'book_delete' book.id %}">Delete</a>
   </div>
 {% endblock %}
