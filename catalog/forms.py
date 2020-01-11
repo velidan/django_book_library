@@ -4,7 +4,39 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 import datetime
 
-from catalog.models import BookInstance
+from catalog.models import BookInstance, Book, Author, Genre, Language
+
+
+#  ModelForm Create book - Working
+# class CreateBookForm(ModelForm):
+#     class Meta:
+#         model = Book
+#         fields = '__all__'
+
+#     def clean_title(self):
+#         title = self.cleaned_data['title']
+
+#         if len(title) < 2:
+#             raise ValidationError(_('title should contain more than 2 chars'))
+#         return title
+
+# django.Forms based CreateBookForm - working
+
+# class CreateBookForm(forms.Form):
+#     title = forms.CharField(help_text="A Book title")
+#     author = forms.ModelChoiceField(queryset=Author.objects.all(), help_text='Select a book author')
+#     summary = forms.CharField(widget=forms.Textarea, help_text='A Summary of the book')
+#     isbn = forms.CharField(help_text='13 Character <a href="https://www.isbn-international.org/content/what-isbn">ISBN number</a>')
+
+#     genre = forms.ModelMultipleChoiceField(queryset=Genre.objects.all(), help_text='Select book genres')
+#     language = forms.ModelChoiceField(queryset=Language.objects.all(), help_text='Choose a book language')
+
+#     def clean_title(self):
+#         title = self.cleaned_data['title']
+
+#         if len(title) < 2:
+#             raise ValidationError(_('title should contain more than 2 chars'))
+#         return title
 
 # model form
 class RenewBookForm(ModelForm):
@@ -27,7 +59,6 @@ class RenewBookForm(ModelForm):
         fields = ['due_back']
         labels = {'due_back': _('Renewal date')}
         help_texts = {'due_back': _('Enter a date between now and 4 weeks (default 3).')} 
-
 
 # form based
 # class RenewBookForm(forms.Form):
