@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from catalog.models import Book, Author, BookInstance, Genre
-from django.views import generic
-from django.http import HttpResponseRedirect
+from django.views import generic, View
+from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.decorators import permission_required
@@ -13,6 +13,12 @@ from catalog.forms import RenewBookForm
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from catalog.models import Author, Book
 
+# django rest framework
+from catalog.serializers import BookSerializer
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import authentication, permissions
+from django.http import HttpResponse, JsonResponse
 
 def index(request):
     """View function for home page of site."""
@@ -158,3 +164,24 @@ def renew_book_librarian(request, pk):
     }
 
     return render(request, 'catalog/book_renew_librarian.html', context)
+
+
+class BooksRest(APIView):
+
+    def get(self, request, format=None):
+        books = Book.objects.all()
+        print(books)
+        serializer = BookSerializer(books, many=True)
+        print(serializer.data)
+        return Response(serializer.data)
+
+class BookRest(APIView):
+    def get(self, request, pk, format=None):
+        """Retrieve a particular book"""
+        try:
+            book = Book.objects.get(id=pk)
+        except:
+            return HttpResponse(status=404)
+
+        serializer = BookSerializer(book)
+        return Response(serializer.data)

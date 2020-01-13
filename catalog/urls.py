@@ -1,5 +1,8 @@
-from django.urls import path
+from django.urls import path, include, re_path
 from . import views
+
+# rest_framework 
+from rest_framework.urlpatterns import format_suffix_patterns
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -23,3 +26,12 @@ urlpatterns += [
     path('book/<int:pk>/update/', views.BookUpdate.as_view(), name='book_update'),
     path('book/<int:pk>/delete/', views.BookDelete.as_view(), name='book_delete'),
 ]
+
+# rest 
+urlpatterns += [  
+    path('books_rest/', views.BooksRest.as_view(), name='books_rest'),
+    path('book_rest/<int:pk>/', views.BookRest.as_view(), name='book_rest'),
+    re_path(r'^api-auth/', include('rest_framework.urls')),
+]
+
+urlpatterns = format_suffix_patterns(urlpatterns)
