@@ -8,17 +8,19 @@ from django.contrib.auth.decorators import permission_required
 
 import datetime
 from catalog.forms import RenewBookForm
+import catalog
 
 # generic CRUD
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from catalog.models import Author, Book
 
 # django rest framework
-from catalog.serializers import BookSerializer
+from catalog.serializers import BookSerializer, AuthorSerializer
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework import authentication, permissions
+from rest_framework import authentication, permissions, mixins, generics
 from django.http import HttpResponse, JsonResponse, Http404
+from catalog.permissions import CanMarkReturned
 
 def index(request):
     """View function for home page of site."""
@@ -166,46 +168,106 @@ def renew_book_librarian(request, pk):
     return render(request, 'catalog/book_renew_librarian.html', context)
 
 
-class BooksRest(APIView):
+# --- Simplified mixin based solution
 
-    def get(self, request, format=None):
-        books = Book.objects.all()
-        print(books)
-        serializer = BookSerializer(books, many=True)
-        print(serializer.data)
-        return Response(serializer.data)
 
-    def post(self, request, format=None):
-        serializer = BookSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+class BooksRest(generics.ListCreateAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
+    permission_classes = [ CanMarkReturned ]
 
-class BookRest(APIView):
+    def perform_create(self, serializer):
+        print(f'self.request.user => {dir(self.request.user)}')
 
-    def get_object(self, pk):
-        try:
-            return Book.objects.get(id=pk)
-        except Book.DoesNotExist:
-            raise Http404
 
-    def get(self, request, pk, format=None):
-        """Retrieve a particular book"""
-        book = self.get_object(pk)
+class BookRest(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Book.objects.all()
+    serializer_class = BookSerializer
 
-        serializer = BookSerializer(book)
-        return Response(serializer.data)
+    permission_classes = [ CanMarkReturned ]
 
-    def put(self, request, pk, format=None):
-        book = self.get_object(pk)
-        serializer = BookSerializer(book, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, pk, format=None):
-        book = self.get_object(pk)
-        book.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+class AuthorsRest(generics.ListCreateAPIView):
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+    
+
+class AuthorRest(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Author.objects.all()
+    serializer_class = AuthorSerializer
+
+# --- mixin based solution
+# class BooksRest(mixins.ListModelMixin,
+#                 mixins.CreateModelMixin,
+#                 generics.GenericAPIView):
+#     queryset = Book.objects.all()
+#     serializer_class = BookSerializer
+
+#     def get(self, request, *args, **kwargs):
+#         return self.list(request, *args, **kwargs)
+
+#     def post(self, request, *args, **kwargs):
+#         return self.create(request, *args, **kwargs)
+
+
+# class BookRest(mixins.RetrieveModelMixin,
+#                 mixins.UpdateModelMixin,
+#                 mixins.DestroyModelMixin,
+#                 generics.GenericAPIView):
+#     queryset = Book.objects.all()
+#     serializer_class = BookSerializer
+
+#     def get(self, request, *args, **kwargs):
+#         return self.retrieve(request, *args, **kwargs)
+
+#     def put(self, request, *args, **kwargs):
+#         return self.update(request, *args, **kwargs)
+
+#     def delete(self, request, *args, **kwargs):
+#         return self.destroy(request, *args, **kwargs)
+
+#--- working class based APIView Books list + create
+
+# class BooksRest(APIView):
+
+#     def get(self, request, format=None):
+#         books = Book.objects.all()
+#         print(books)
+#         serializer = BookSerializer(books, many=True)
+#         print(serializer.data)
+#         return Response(serializer.data)
+
+#     def post(self, request, format=None):
+#         serializer = BookSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+# class BookRest(APIView):
+
+#     def get_object(self, pk):
+#         try:
+#             return Book.objects.get(id=pk)
+#         except Book.DoesNotExist:
+#             raise Http404
+
+#     def get(self, request, pk, format=None):
+#         """Retrieve a particular book"""
+#         book = self.get_object(pk)
+
+#         serializer = BookSerializer(book)
+#         return Response(serializer.data)
+
+#     def put(self, request, pk, format=None):
+#         book = self.get_object(pk)
+#         serializer = BookSerializer(book, data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     def delete(self, pk, format=None):
+#         book = self.get_object(pk)
+#         book.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
