@@ -33,6 +33,7 @@ urlpatterns += [
     path('book_rest/<int:pk>/', views.BookRest.as_view(), name='book_rest'),
     path('authors_rest/', views.AuthorsRest.as_view(), name='authors_rest'),
     path('authors_rest/<int:pk>/', views.AuthorRest.as_view(), name='author_rest'),
+    path('rest_root/', views.api_root, name='rest_root'),
     re_path(r'^api-auth/', include('rest_framework.urls')),
 ]
 

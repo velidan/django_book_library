@@ -21,6 +21,9 @@ from rest_framework.views import APIView
 from rest_framework import authentication, permissions, mixins, generics
 from django.http import HttpResponse, JsonResponse, Http404
 from catalog.permissions import CanMarkReturned
+from rest_framework.decorators import api_view
+from rest_framework.reverse import reverse
+
 
 def index(request):
     """View function for home page of site."""
@@ -167,6 +170,15 @@ def renew_book_librarian(request, pk):
 
     return render(request, 'catalog/book_renew_librarian.html', context)
 
+
+# Django Rest Framework
+
+@api_view(['GET'])
+def api_root(request, format=None):
+    return Response({
+        'books_rest': reverse('books_rest', request=request, format=format),
+        'authors_rest': reverse('authors_rest', request=request, format=format)
+    })
 
 # --- Simplified mixin based solution
 
